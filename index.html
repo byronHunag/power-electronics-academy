@@ -13,7 +13,7 @@
 
 </style>
   <script src="./content.js"></script>
-  
+  <script type="module">
 (() => {
   'use strict';
   const original = window.POWER_ACADEMY_DATA || {modules:[], lessons:[], updates:[], next:null};
@@ -154,7 +154,7 @@
   window.addEventListener('hashchange',render);
   render();
 })();
-
+  </script>
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 </head>
