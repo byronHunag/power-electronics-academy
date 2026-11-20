@@ -23,7 +23,7 @@ window.POWER_ACADEMY_DATA = {
       "id": "flyback",
       "name": "反激 Flyback",
       "subtitle": "DCM/CCM/BCM · 励磁电感 · 钳位 · 反馈",
-      "total": 12
+      "total": 15
     }
   ],
   "lessons": [
@@ -3107,9 +3107,188 @@ window.POWER_ACADEMY_DATA = {
         "原边开关回路、漏感钳位回路、副边整流电容回路；其di/dt与压降会污染CS/反馈。",
         "有明确工况、版本、仪器、限值和原始记录的实测才支持通过；公式估算与参考设计成绩不能代替。"
       ]
+    },
+    {
+      "number": 13,
+      "title": "65W反激同步整流：低边与高边、浮动供电及开通关断",
+      "summary": "在反激储能期间原边MOS开通，副边SR关断；原边关断后副边体二极管先导通，控制器检测负VDS后开通NMOS，电流由S向D流动；退磁时电流下降，VDS趋近零，SR及时关断以防逆流。DCM/QR退磁后存在自由振荡，CCM必须在原边再次开通的换流过程中快速关断。两种接法的差分VDS及VGS理想条件相同，改变的是各引脚对输出地的共模电位。\n低边接法：绕组正端→Vout，绕组负端→D，S→输出SGND。高边接法：绕组正端→S，D→Vout，绕组负端→SGND。两种均为NMOS，体二极管方向S→D。",
+      "derivation": "KP4060LGA：Pin1 VO为供电配置，Pin2 GND为本地参考，Pin3 RW为智能开通配置，Pin4 VDD为本地供电，Pin5 Gate驱动，Pin6 HV检测D端。参考典型应用图确认VO具体连线：低边9V接Vout；高边9V通常VO与HV接Vout；高边6V通常VO接本地GND。公开数据手册图像未能直接读取，高边VO接线实施前必须对照完整第1页。C4=1µF接VDD与本地GND，R3=2kΩ接RW与本地GND；高边本地GND随S变化，禁止接输出SGND。R8=47Ω与C5=1nF串联跨Q1 D-S，不是Gate串联电阻。C3/C18各680µF、C19=100nF输出滤波。\n数据手册给出VDD典型6/9V、HV/VO极限−1～180V、SR开通检测典型−100mV、关断阈值−5～+5mV（典型0），检测延时25/22ns（2.2nF测试条件），不等于外部MOS实际关断时间。",
+      "waveform": "以输出SGND=0，Vbulk≈375V、n=Np/Ns=13.25、Vo=20V、Vg=9V举例。原边开通：低边 D=48.3V，S=G=0；高边 D=20V，S=G=−28.3V；两者VDS=+48.3V，VGS=0。原边关断后体二极管导通：低边 D=−0.7V，S=0；高边 D=20V，S=20.7V；VDS=−0.7V。SR沟道导通（10A、10mΩ）：低边 D=−0.1V、S=0、G=9V；高边 D=20V、S=20.1V、G=29.1V；VDS=−0.1V、VGS=9V。退磁结束时VDS接近0，GATE降至S；DCM空闲段S/D继续振荡，不应误认为一直维持20V或0V。高边VDD−GND约9V，即使IC地从−28.3V跳至20.1V，本地供电仍为正电压。附图是理想DCM示意，负压部分放大。",
+      "formula": [
+        "n=Np/Ns",
+        "VDS,block=Vo+Vbulk/n",
+        "VDS,on=−Is·RDS(on)",
+        "VGS=VG−VS",
+        "高边：VD=Vo；VS=Vo−VDS；VG=VS+VGS",
+        "低边：VS≈0；VD=VDS；VG=VGS"
+      ],
+      "selection": "当前固定20V输出、双层PCB优先维持低边方案，调试与布线相对容易。高边的绕组负端可直接连接输出地，D散热焊盘可接稳定Vout；但S和整个控制参考区成为高dv/dt节点，需控制浮动铜皮面积及寄生电容。高低边效率、EMI并非天然谁更好；同等器件及VGS时导通损耗相同。改高边应先核查VO配置、VDD供电和浮地布局。",
+      "worked_example": "375/13.25=28.3V是原边开通期间副边感应电压幅值；输出电容20V与其叠加得到SR关断应力48.3V。这不是SR开通阈值（−100mV典型），也不是VGS。高边Gate对输出地29.1V，但VGS仅9V。若C4=1µF且Qg=30nC，单次栅极充电的理想电容跌落约30mV，另计芯片及充电路径。",
+      "debug": "同步观察原边VGS、副边VDS、VGS和副边电流；高边测量必须使用合适差分探头，禁止把接地式示波器地夹接到浮动S。观察体二极管时间、误开通、反向电流、VDD跌落和VDS尖峰。",
+      "mistakes": "把原边开通误认为副边开通；把VDS应力当作VGS或检测阈值；把高边IC GND直接连接SGND；将CCM误按DCM自然退磁处理；盲目照抄高边VO接线未核对原厂图。",
+      "interfaces": "变压器匝比、母线最大值确定阻断电压；励磁电感、频率、工作模式决定副边电流；输出电容决定Vout纹波；下两课计算Kelvin地误差及MOS选型。",
+      "bench_steps": [
+        "断电核查S/D方向及HV/GATE/VO/RW/VDD连接。",
+        "限能启动，先确认VDD−IC GND与VGS，再逐步增加负载。",
+        "高低线全负载及轻载记录VDS、VGS和Is，特别检查CCM换流和DCM自由振荡。"
+      ],
+      "questions": [
+        "原边开通时为什么SR VDS为正48.3V？",
+        "高边S=20.1V、G=29.1V时VGS是多少？",
+        "为什么高边控制地不能接SGND？",
+        "DCM与CCM的SR关断有何区别？"
+      ],
+      "answers": [
+        "输出20V与副边反射电压28.3V叠加。",
+        "9V。",
+        "S是浮动开关节点，短接会破坏副边电路。",
+        "DCM可在电流自然归零时关断；CCM需快速处理强制换流。"
+      ],
+      "references": [
+        {
+          "title": "必易微 KP4060LGA REV1.1S：典型电路、引脚与电气参数",
+          "url": "https://datasheet.lcsc.com/lcsc/2106062333_KIWI-KP4060LGA_C2692179.pdf"
+        },
+        {
+          "title": "必易微 KP4060 产品介绍",
+          "url": "https://www.kiwiinst.com/productinfo/1249623.html"
+        }
+      ],
+      "id": "flyback-13",
+      "module": "flyback",
+      "status": "full",
+      "application": "65W · 20V/3.25A · 65kHz反激同步整流专题",
+      "source_note": "基于65W反激同步整流讨论重新整理。所有电压、电流、损耗及波形均为理论估算或示例，未上传原始PCB截图或实测数据。"
+    },
+    {
+      "number": 14,
+      "title": "同步整流Kelvin接地、AD20双层PCB与RC吸收实战",
+      "summary": "共享功率回路的铜箔电阻和电感会在控制地引入误差。芯片检测VH V−GND，而实际需要VD−VS，误差为VS−VICGND。毫伏级关断判据使Kelvin取点非常重要。U1 GND、C4负端、R3地组成局部SR_GND，再从Q1实际Source焊盘单点连接功率回路；HV从D焊盘独立取样。局部地不承担副边整流大电流，但必须承载瞬态Gate驱动回流，绝不是越细越好。",
+      "derivation": "功率回路：绕组正端→输出电容正端→电容/负载→电容负端→SR Source（低边）→Drain→绕组负端。高边时S与绕组正端连接，D与输出正端相连。正向电流为S→D。功率铜箔地电位差IR+Ldi/dt可导致检测误差，符号由电流及变化率决定，提前关断或延迟关断均可能。3mΩ×10A=30mV；2nH×50A/µs=100mV；远大于±5mV关断阈值量级。\nC4去耦的开通驱动回路：C4+→驱动输出→Gate→Source→C4−。关断回路：Gate→内部下拉→IC GND→Source。KP4060典型峰值上拉0.8A/下拉5A，并非连续电流。举例Qg=40nC、fs=65kHz，平均充电电流2.6mA；瞬时驱动可达安培级，走线必须兼顾电感和电阻。",
+      "waveform": "实际量测Q1 D-S、G-S、HV到IC GND、IC GND到Q1 S、VDD到IC GND及副边电流。若VDS已接近零而Gate仍高，检查检测误差和关断延迟；若提前关闭且体二极管接管，检查地线和噪声。若退磁后Gate误启动，检查RW配置和振铃。图中Kelvin与功率电流路径为示意；不可据此确认真实PCB的唯一接点。",
+      "formula": [
+        "Vsense−VDS=VS−VICGND",
+        "Verror=IR+L·di/dt（按实际方向取符号）",
+        "Rcu=ρ·l/(w·t)",
+        "Igate,avg≈Qg·fs",
+        "Psnubber≈Cs·VDS²·fs（完整充放电近似）",
+        "Cp=Cadd/[(f1/f2)²−1]；Lp=1/(4π²f1²Cp)；Rs≈√(Lp/Cp)"
+      ],
+      "selection": "AD20可建立SR_GND，Net-Tie紧贴Source焊盘；低边连接SGND功率侧，高边连接SR_SW而绝不连接输出SGND。单点不仅靠网络命名：检查上下层铺铜、过孔、热焊盘和其他回路无额外并联接点。双层1oz初步参考：U1 GND到S 0.4～0.8mm，Gate 0.4～0.6mm，HV 0.25～0.4mm，RW 0.2～0.3mm，C4 0.4～0.8mm；以短、紧耦合及不共享功率铜箔优先。S到输出电容负极/绕组端用宽铜皮并校核温升。R8 47Ω、C5 1nF/200V紧贴D-S；低边D为SW，高边S为SW，避免扩大开关节点面积。",
+      "worked_example": "1oz铜厚35µm、10mm长、0.5mm宽，室温电阻约9.8mΩ；1A脉冲IR约9.8mV，另有寄生电感。因此不能把单点接地理解为极细长线。RC吸收电容1nF，若每周期近似全幅48.3V充放电，65kHz损耗约0.152W（有尖峰时波形和损耗另计）。47Ω×1nF=47ns；初始电流约1.03A，1206电阻需检查脉冲承受能力。实际吸收效果通过两次振铃频率测量反推LC并优化，不盲目增容。",
+      "debug": "测量应尽量靠近MOS焊盘并降低探头环路；检查两层SGND铺铜是否绕过Net-Tie，检查Gerber、DRC和连通性。比较整改前后温升、体二极管导通时间和反向电流。",
+      "mistakes": "把控制地随意拉到远端输出电解；R3或C4通过另一处铺铜接SGND；用磁珠代替低阻抗Net-Tie；为改善散热无限扩大SW铜皮；把RC电阻当Gate电阻。",
+      "interfaces": "SR回路损耗和EMI耦合反馈与变压器；高边浮地对周边信号及原副边寄生电容敏感，输出地连续性不能单独决定EMI优劣。",
+      "bench_steps": [
+        "用AD20高亮SR_GND、SGND、SR_SW及HV，单层查看铜皮与过孔。",
+        "在Source焊盘确定唯一连接，局部GND与Gate尽量靠近。",
+        "测IC GND−S电位差，再比较VDS与HV参考波形。",
+        "测试满载热稳态、轻载及动态，比较不同RC的尖峰与效率。"
+      ],
+      "questions": [
+        "为什么GND不按3.25A设计？",
+        "为什么仍不能用极细长线？",
+        "3mΩ、10A共享压降是多少？",
+        "高边Net-Tie应接哪个网络？",
+        "RC吸收1nF、48.3V、65kHz全幅近似损耗？"
+      ],
+      "answers": [
+        "不承担主功率电流，只承担控制及驱动回流。",
+        "存在安培级驱动脉冲，细长线产生IR和Ldi/dt。",
+        "30mV。",
+        "SR_SW，在Source处。",
+        "约0.152W。"
+      ],
+      "references": [
+        {
+          "title": "必易微 KP4060LGA REV1.1S：典型电路、引脚与电气参数",
+          "url": "https://datasheet.lcsc.com/lcsc/2106062333_KIWI-KP4060LGA_C2692179.pdf"
+        }
+      ],
+      "id": "flyback-14",
+      "module": "flyback",
+      "status": "full",
+      "application": "65W · 20V/3.25A · 65kHz反激同步整流专题",
+      "source_note": "基于65W反激同步整流讨论重新整理。所有电压、电流、损耗及波形均为理论估算或示例，未上传原始PCB截图或实测数据。"
+    },
+    {
+      "number": 15,
+      "title": "65W副边同步整流MOSFET选型：耐压、电流、Qg及热设计",
+      "summary": "选型先算最大阻断VDS，再扫最低母线谷值下副边峰值/RMS电流，按实际VGS及温度选择RDS(on)，同时校核Qg、Qgd、Qoss/Eoss、体二极管VF/Qrr、SOA和散热。单看额定Id及最低RDS(on)不是合理准则。推荐先测试100V、5～10mΩ、5×6mm NMOS；低边9V优先BSC070N10NS5，低阻值对比BSC050N10NS5，高边6V优先评估逻辑电平BSC070N10LS5，瑞萨RBE067N10R1SZN6可作为替代评估。",
+      "derivation": "项目参数：20V/3.25A，65W，65kHz；假设Np/Ns=13.25、Lm=2943µH仍是当前变压器实值；输入90～265Vac，之前也讨论276Vac高线。Vbulk峰值不等于低线谷值。理想稳态CCM：D=nVo/(Vbulk+nVo)，Ds=1−D；ΔIp=VbulkD/(Lmfs)；ΔIs=nΔIp；整流区平均Is=Io/Ds，Ipk=Io/Ds+ΔIs/2，Ivalley=Io/Ds−ΔIs/2；Irms=√[Ds((Io/Ds)²+ΔIs²/12)]。若谷值≤0则改用DCM模型，不能沿用负谷值。DCM：Ipk=2Io/Ds，Irms=Ipk√(Ds/3)，Ds应由实际退磁时间确定。BCM边界Iout=DsΔIs/2。器件最终定值用实测最坏工况，不能用一个假定50%副边导通占比代表整个输入范围。",
+      "waveform": "SR VDS高线最高，低线/低母线谷值电流通常更高。记录高线负载阶跃的过冲与低线满载温升；观察CCM强制换流电流和VGS下降沿。实际MOS峰值应力包含漏感、布局和器件非线性；不能用平均3.25A代替峰值。",
+      "formula": [
+        "VDS,pk≈Vo+Vbulk,max/n+Vspike",
+        "Vrating≥VDS,pk/k（例k=0.8，非强制标准）",
+        "D=nVo/(Vbulk+nVo)；Ds=1−D（CCM）",
+        "ΔIs=n·Vbulk·D/(Lm·fs)",
+        "Ipk=Io/Ds+ΔIs/2；Ivalley=Io/Ds−ΔIs/2",
+        "Irms=√[Ds((Io/Ds)²+ΔIs²/12)]",
+        "Pcond=Irms²·RDS(on,T,VGS)",
+        "Pgate≈Qg·VGS·fs；ΔVDD≈Qg/C4",
+        "Pdiode≈VF·fs·∫idead(t)dt；Tj≈Ta+Ploss·RθJA（PCB相关）"
+      ],
+      "selection": "原厂候选（RDS(on)最大值@10V，Qg典型值）：英飞凌 BSC070N10NS5，100V、7mΩ、30nC@10V、80A额定、SuperSO8 5×6；BSC050N10NS5，100V、5mΩ、49nC@10V、114A额定、同系列封装；BSC070N10LS5，100V、7mΩ@10V及8.5mΩ@4.5V、16nC@4.5V、79A额定；瑞萨RBE067N10R1SZN6，100V、6.7mΩ、42nC@10V（50V/40A）、80A额定、SO8-FL 5×6。Qg测试电压不同不可直接排名，额定电流受壳温/PCB限制，不能照搬。9V驱动需核对实际高温电阻、6V供电优先有低VGS电阻保证的器件；逻辑电平器件阈值低，检查误导通/Cgd。各封装焊盘和引脚须独立核对，无保证直接替换。优先关注Qg 20～50nC量级、Qgd小、适当Qoss/Eoss、低Qrr，避免盲目并联或选超大芯片。",
+      "worked_example": "耐压：265Vac峰值约375V，SR理论48.3V；276Vac峰值390.3V，理论49.46V。假定20V额外尖峰分别68.3V/69.5V，用80%额定耐压工程目标需≥85.4V/86.8V，故100V优先；80V器件只有在实测最坏峰值≤64V并符合全工况裕量时再评估。100V器件建议把全工况VDS峰值控制在80V以内，留足设计余量。另需注意原边理论应力在265Vac约375+13.25×20=640V，276Vac约655V，尚未加漏感尖峰；若匝比确为13.25，则650V原边MOS裕量明显不足，应重新校核匝比/原边耐压/钳位。低线理想CCM例：Vbulk=127V、Ds≈0.324、ΔIs≈5.94A、Ipk≈13.0A、Irms≈5.79A；若谷值90V，Ds≈0.254、Ipk≈15.2A、Irms≈6.50A。高线375V：Ds≈0.586、Ipk≈10.92A、Irms≈4.87A，谷值约0.17A，接近BCM。实际限占空比、损耗、L容差、母线纹波需另算。以Irms=6.5A、热态RDS=10mΩ算Pcond≈0.423W；若7mΩ@25℃、热态倍率1.5（仅示例）则0.444W。30nC、9V、65kHz栅极充电能量约17.6mW；49nC则28.7mW；此为近似驱动功耗，不等于控制IC全部损耗，Qg取值需按9V实际曲线。肖特基0.5V时约1.625W，SR一般有优势。",
+      "debug": "低线热机测实际母线谷值和Is、MOS壳温；高线启动、轻载、满载和动态记录峰值；测VDD和VGS，核对低边关断是否及时、体二极管时间和反流；以输入/输出功率及温升比较4款器件，不只比较导通电阻。估算总损耗时不要把全部Eoss或Qg损耗都直接计到MOS芯片；能量流向视换流和驱动拓扑确定。",
+      "mistakes": "60V额定仅因48.3V理论值就直接选用；把MOS额定80A当作可在双层PCB持续80A；用10V冷态Rds算6V热态损耗；忽略Qg、Qrr、Coss、封装热阻与脉冲SOA；以AC峰值代替低线谷值。",
+      "interfaces": "SR与变压器匝比、励磁电感、原边MOS耐压、输出电容及PCB回路共同优化；如低线占空比上限不满足，须先回到变比/磁件设计，不是换更大SR MOS可解决。",
+      "bench_steps": [
+        "复核变压器n、Lm、实际输入范围和原边最大占空比。",
+        "记录Vbulk最低谷值、最大VDS尖峰及副边电流波形。",
+        "在现有封装允许时分别评估BSC070N10NS5与BSC050N10NS5，并检查驱动及温升。",
+        "测试短时掉电重启、轻载、热稳态和负载阶跃；记录效率和EMI。"
+      ],
+      "questions": [
+        "276Vac、n=13.25、Vo=20V的理论SR耐压？",
+        "为何100V优于60V？",
+        "低线90V母线谷值为什么比127V峰值更重要？",
+        "6.5Arms、10mΩ热态导通损耗？",
+        "为何原边650V MOS需重新评估？"
+      ],
+      "answers": [
+        "约49.46V，未计尖峰。",
+        "需容纳尖峰及裕量；示例69.5V已超过60V。",
+        "谷值导致占空比和副边RMS/峰值升高。",
+        "约0.423W。",
+        "375V+265V反射电压已达640V，加漏感尖峰可能超过650V。"
+      ],
+      "references": [
+        {
+          "title": "必易微 KP4060LGA REV1.1S：典型电路、引脚与电气参数",
+          "url": "https://datasheet.lcsc.com/lcsc/2106062333_KIWI-KP4060LGA_C2692179.pdf"
+        },
+        {
+          "title": "Infineon BSC070N10NS5",
+          "url": "https://www.infineon.com/part/BSC070N10NS5"
+        },
+        {
+          "title": "Infineon BSC050N10NS5",
+          "url": "https://www.infineon.com/part/BSC050N10NS5"
+        },
+        {
+          "title": "Infineon BSC070N10LS5",
+          "url": "https://www.infineon.com/part/BSC070N10LS5"
+        },
+        {
+          "title": "Renesas RBE067N10R1SZN6 数据手册",
+          "url": "https://www.renesas.com/en/document/dst/rbe067n10r1szn6-datasheet?r=25576752"
+        }
+      ],
+      "id": "flyback-15",
+      "module": "flyback",
+      "status": "full",
+      "application": "65W · 20V/3.25A · 65kHz反激同步整流专题",
+      "source_note": "基于65W反激同步整流讨论重新整理。所有电压、电流、损耗及波形均为理论估算或示例，未上传原始PCB截图或实测数据。"
     }
   ],
   "updates": [
+    {
+      "date": "2026-11-20",
+      "title": "65W反激同步整流专题（第13～15课）",
+      "detail": "高低边原理、浮地、Kelvin/AD20布局、RC吸收、100V MOS选型及电流耐压计算。保留PFC第33课为原定下一课。",
+      "lesson_id": "flyback-15"
+    },
     {
       "date": "2026-11-20",
       "title": "新增PFC第23～32课",
@@ -3139,6 +3318,6 @@ window.POWER_ACADEMY_DATA = {
     "number": 33,
     "title": "整机损耗计算、效率优化与散热设计"
   },
-  "version": "3.2.0",
+  "version": "3.3.0",
   "updated_at": "2026-11-20"
 };
