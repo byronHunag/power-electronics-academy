@@ -1,11 +1,11 @@
-/* Power Electronics Academy course data. Edit this file to publish course updates. */
+/* Power Electronics Academy course data. */
 window.POWER_ACADEMY_DATA = {
   "modules": [
     {
       "id": "pfc",
       "name": "PFC 功率因数校正",
       "subtitle": "CCM Boost · 电流塑形 · 环路 · EMI · 样机验证",
-      "total": 22
+      "total": 33
     },
     {
       "id": "mag",
@@ -950,6 +950,369 @@ window.POWER_ACADEMY_DATA = {
           "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf"
         }
       ]
+    },
+    {
+      "id": "pfc-23",
+      "module": "pfc",
+      "number": 23,
+      "title": "MOSFET与Boost二极管选型",
+      "status": "full",
+      "summary": "650V器件需同时校核峰值电流、热态导通电阻、开关能量和反向恢复。",
+      "formula": [
+        "Iin=Pout/(η·Vac)",
+        "Pcond=Irms²·Rds(on,T)",
+        "Psw≈fs·(Eon+Eoff)"
+      ],
+      "waveform": "VDS关断升至母线，开通时二极管反向恢复产生电流尖峰。",
+      "selection": "比较650V Si MOS和SiC二极管，检查热态开关能量、SOA及耐压裕量。",
+      "debug": "同步测VDS、VGS、IL，区分反向恢复和寄生振铃。",
+      "mistakes": "只看额定Id或25℃电阻。",
+      "interfaces": "器件损耗决定散热与母线供电效率。",
+      "worked_example": "800W、95%、85Vac：9.91Arms，包络峰值14.01A，470µH/65kHz时波峰电流15.39A。MOS RMS约8.55A，150mΩ热态导通损耗约11W。",
+      "derivation": "650V器件需同时校核峰值电流、热态导通电阻、开关能量和反向恢复。\nIin=Pout/(η·Vac); Pcond=Irms²·Rds(on,T); Psw≈fs·(Eon+Eoff)",
+      "bench_steps": [
+        "同步测VDS、VGS、IL，区分反向恢复和寄生振铃。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "650V器件需同时校核峰值电流、热态导通电阻、开关能量和反向恢复。",
+        "800W、95%、85Vac：9.91Arms，包络峰值14.01A，470µH/65kHz时波峰电流15.39A。MOS RMS约8.55A，150mΩ热态导通损耗约11W。",
+        "同步测VDS、VGS、IL，区分反向恢复和寄生振铃。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-24",
+      "module": "pfc",
+      "number": 24,
+      "title": "栅极驱动、米勒平台与开关损耗",
+      "status": "full",
+      "summary": "驱动阻抗决定电荷充放电速度，公共源极电感影响实际VGS。",
+      "formula": [
+        "Ig≈(Vdrv−Vplateau)/Rg,total",
+        "Im=Cgd·dv/dt",
+        "Vls=Ls·di/dt"
+      ],
+      "waveform": "VGS先上升、进入米勒平台，再完成增强；关断时观察正负尖峰。",
+      "selection": "优先Kelvin Source，分开开通关断电阻并校核驱动峰值电流。",
+      "debug": "直接在G/S端测量，逐步调整Rg并记录效率和尖峰。",
+      "mistakes": "盲目增大Rg或共享功率回流。",
+      "interfaces": "驱动速度影响EMI、二极管恢复及保护延迟。",
+      "worked_example": "例如10nH公共源极电感、0.75A/ns产生7.5V瞬态。",
+      "derivation": "驱动阻抗决定电荷充放电速度，公共源极电感影响实际VGS。\nIg≈(Vdrv−Vplateau)/Rg,total; Im=Cgd·dv/dt; Vls=Ls·di/dt",
+      "bench_steps": [
+        "直接在G/S端测量，逐步调整Rg并记录效率和尖峰。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "驱动阻抗决定电荷充放电速度，公共源极电感影响实际VGS。",
+        "例如10nH公共源极电感、0.75A/ns产生7.5V瞬态。",
+        "直接在G/S端测量，逐步调整Rg并记录效率和尖峰。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-25",
+      "module": "pfc",
+      "number": 25,
+      "title": "Boost电感磁芯、气隙和饱和设计",
+      "status": "full",
+      "summary": "储能主要由气隙承担，热态增量电感决定峰值电流。",
+      "formula": [
+        "E=LIpk²/2",
+        "B≈LI/(N·Ae)",
+        "lg≈μ0N²Ae/L（气隙主导近似）"
+      ],
+      "waveform": "正常IL为三角纹波；饱和时导通后段斜率变陡。",
+      "selection": "按材料热态Bsat、窗口、气隙边缘损耗迭代磁芯与匝数。",
+      "debug": "测直流偏置下增量L，检查绕组热点。",
+      "mistakes": "把小信号L当作全电流范围恒定值。",
+      "interfaces": "电感饱和影响OCP、电流环及LLC供电。",
+      "worked_example": "470µH、15.39A储能55.7mJ；Ae=200mm²、150匝时B约0.241T，理想总气隙约12mm，仅用于说明窗口与气隙约束。",
+      "derivation": "储能主要由气隙承担，热态增量电感决定峰值电流。\nE=LIpk²/2; B≈LI/(N·Ae); lg≈μ0N²Ae/L（气隙主导近似）",
+      "bench_steps": [
+        "测直流偏置下增量L，检查绕组热点。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "储能主要由气隙承担，热态增量电感决定峰值电流。",
+        "470µH、15.39A储能55.7mJ；Ae=200mm²、150匝时B约0.241T，理想总气隙约12mm，仅用于说明窗口与气隙约束。",
+        "测直流偏置下增量L，检查绕组热点。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-26",
+      "module": "pfc",
+      "number": 26,
+      "title": "Boost电感铜损、磁芯损耗与温升",
+      "status": "full",
+      "summary": "铜损与RMS电流有关，磁芯损耗受频率、磁通摆幅和温度影响。",
+      "formula": [
+        "Pcu=Irms²·Rac（分频计算）",
+        "ΔB=LΔI/(N·Ae)",
+        "ΔI=Vin(1−Vin/Vbus)/(L·fs)"
+      ],
+      "waveform": "最大纹波出现在瞬时Vin=Vbus/2，而非必然在工频波峰。",
+      "selection": "按厂家磁芯损耗曲线及实际波形计算，评估细股线与气隙位置。",
+      "debug": "热稳态记录磁芯、绕组及环境温度。",
+      "mistakes": "忽略集肤和邻近效应。",
+      "interfaces": "磁件温升限制功率密度及连续输出。",
+      "worked_example": "470µH、65kHz、400V母线：最大纹波3.27A；150匝、Ae=200mm²时ΔB约51.3mT。9.91A、80mΩ热态DCR的低频铜损约7.86W。",
+      "derivation": "铜损与RMS电流有关，磁芯损耗受频率、磁通摆幅和温度影响。\nPcu=Irms²·Rac（分频计算）; ΔB=LΔI/(N·Ae); ΔI=Vin(1−Vin/Vbus)/(L·fs)",
+      "bench_steps": [
+        "热稳态记录磁芯、绕组及环境温度。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "铜损与RMS电流有关，磁芯损耗受频率、磁通摆幅和温度影响。",
+        "470µH、65kHz、400V母线：最大纹波3.27A；150匝、Ae=200mm²时ΔB约51.3mT。9.91A、80mΩ热态DCR的低频铜损约7.86W。",
+        "热稳态记录磁芯、绕组及环境温度。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-27",
+      "module": "pfc",
+      "number": 27,
+      "title": "数字PFC电流环建模及PI控制",
+      "status": "full",
+      "summary": "固定工频相位的小信号占空比到电流对象近似积分环节。",
+      "formula": [
+        "Gid(s)=Vbus/(L·s)",
+        "Kp≈2πfcL/Vbus",
+        "Ki=2πfzKp"
+      ],
+      "waveform": "电流参考为整流正弦，实际IL叠加三角纹波。",
+      "selection": "GD32E230同步ADC、PWM影子寄存器、限幅和抗积分饱和。",
+      "debug": "15.4µs延迟在3kHz约−16.6°，测阶跃及振荡。",
+      "mistakes": "不计采样和计算延迟。",
+      "interfaces": "内环须显著快于母线外环。",
+      "worked_example": "470µH、400V、fc=3kHz、fz=300Hz：Kp≈0.0221/A，Ki≈41.7/(A·s)，65kHz时KiTs≈0.000641。",
+      "derivation": "固定工频相位的小信号占空比到电流对象近似积分环节。\nGid(s)=Vbus/(L·s); Kp≈2πfcL/Vbus; Ki=2πfzKp",
+      "bench_steps": [
+        "15.4µs延迟在3kHz约−16.6°，测阶跃及振荡。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "固定工频相位的小信号占空比到电流对象近似积分环节。",
+        "470µH、400V、fc=3kHz、fz=300Hz：Kp≈0.0221/A，Ki≈41.7/(A·s)，65kHz时KiTs≈0.000641。",
+        "15.4µs延迟在3kHz约−16.6°，测阶跃及振荡。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-28",
+      "module": "pfc",
+      "number": 28,
+      "title": "PFC母线电压环小信号模型",
+      "status": "full",
+      "summary": "母线能量变化由输入输出功率差决定，外环输出功率指令。",
+      "formula": [
+        "E=CV²/2",
+        "CV·dV/dt=Ppfc−Pllc",
+        "Gvp(s)=1/(CV·s)"
+      ],
+      "waveform": "母线含100Hz纹波，输入瞬时功率在零与两倍平均值间变化。",
+      "selection": "用功率指令归一化外环对象，设计低于二倍工频的带宽。",
+      "debug": "记录Vbus、功率指令和IL包络。",
+      "mistakes": "把100Hz纹波完全交由PI消除。",
+      "interfaces": "LLC恒功率负载影响母线动态。",
+      "worked_example": "680µF、400V时CV=0.272；功率差400W产生初始斜率1.47V/ms。",
+      "derivation": "母线能量变化由输入输出功率差决定，外环输出功率指令。\nE=CV²/2; CV·dV/dt=Ppfc−Pllc; Gvp(s)=1/(CV·s)",
+      "bench_steps": [
+        "记录Vbus、功率指令和IL包络。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "母线能量变化由输入输出功率差决定，外环输出功率指令。",
+        "680µF、400V时CV=0.272；功率差400W产生初始斜率1.47V/ms。",
+        "记录Vbus、功率指令和IL包络。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-29",
+      "module": "pfc",
+      "number": 29,
+      "title": "400V母线电压环PI及负载阶跃",
+      "status": "full",
+      "summary": "慢电压环抑制二倍工频纹波向电流参考传播。",
+      "formula": [
+        "Kp≈2πfcCV",
+        "Ki=2πfzKp",
+        "ΔVpp≈P/(2πflineCV)"
+      ],
+      "waveform": "正常100Hz纹波与低频环路振荡应区分。",
+      "selection": "PI输出功率指令，设限幅和抗积分饱和。",
+      "debug": "400W阶跃初始跌落约1.47V/ms，检查功率指令是否触限。",
+      "mistakes": "提高外环带宽却忽略THD。",
+      "interfaces": "与LLC软启动、母线欠压和负载阶跃配合。",
+      "worked_example": "680µF、400V、800W、50Hz：纹波约9.36Vpp；fc=10Hz、fz=1Hz，Kp≈17W/V，Ki≈107W/(V·s)。",
+      "derivation": "慢电压环抑制二倍工频纹波向电流参考传播。\nKp≈2πfcCV; Ki=2πfzKp; ΔVpp≈P/(2πflineCV)",
+      "bench_steps": [
+        "400W阶跃初始跌落约1.47V/ms，检查功率指令是否触限。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "慢电压环抑制二倍工频纹波向电流参考传播。",
+        "680µF、400V、800W、50Hz：纹波约9.36Vpp；fc=10Hz、fz=1Hz，Kp≈17W/V，Ki≈107W/(V·s)。",
+        "400W阶跃初始跌落约1.47V/ms，检查功率指令是否触限。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-30",
+      "module": "pfc",
+      "number": 30,
+      "title": "输入电压前馈、乘法器及宽输入THD",
+      "status": "full",
+      "summary": "输入电压平方前馈使功率指令近似不依赖输入有效值。",
+      "formula": [
+        "Iref=Pref·|Vin|/Vrms²",
+        "Dff=1−Vin/Vbus",
+        "PF=cosφ1/√(1+THDI²)"
+      ],
+      "waveform": "零交越死区、峰值削顶和相位偏差分别提示不同问题。",
+      "selection": "65kHz采样、50Hz半周650点；直接计算均方值，设分母下限和欠压关断。",
+      "debug": "检查ADC偏置、最小导通时间、RMS估计延迟及电流限幅。",
+      "mistakes": "将瞬时电压平方作为分母。",
+      "interfaces": "输入前馈稳定外环，EMI X电容影响高压轻载PF。",
+      "worked_example": "800W、95%：85Vac为9.91Arms，264Vac为3.19Arms；264Vac波峰D≈6.66%，65kHz导通时间约1.025µs。无平方前馈增益变化约9.65倍。",
+      "derivation": "输入电压平方前馈使功率指令近似不依赖输入有效值。\nIref=Pref·|Vin|/Vrms²; Dff=1−Vin/Vbus; PF=cosφ1/√(1+THDI²)",
+      "bench_steps": [
+        "检查ADC偏置、最小导通时间、RMS估计延迟及电流限幅。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "输入电压平方前馈使功率指令近似不依赖输入有效值。",
+        "800W、95%：85Vac为9.91Arms，264Vac为3.19Arms；264Vac波峰D≈6.66%，65kHz导通时间约1.025µs。无平方前馈增益变化约9.65倍。",
+        "检查ADC偏置、最小导通时间、RMS估计延迟及电流限幅。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-31",
+      "module": "pfc",
+      "number": 31,
+      "title": "保护电路、预充电与PFC+LLC启动时序",
+      "status": "full",
+      "summary": "先预充电，再旁路继电器、PFC软启动、PG确认、LLC软启动；OCP用独立硬件。",
+      "formula": [
+        "Rpre≥√2Vac,max/Iinrush",
+        "E=CV²/2",
+        "t_hold=C(Vstart²−Vstop²)/(2P)"
+      ],
+      "waveform": "Vbus先升至整流峰值，再升至400V；故障时PWM快速关断。",
+      "selection": "软件OVP420V、硬件430V仅初始参考；校核容差、继电器直流触点及电阻脉冲能力。",
+      "debug": "先低能量注入测试，测FAULT至VGS关断延迟，检查热态重启。",
+      "mistakes": "仅靠串口或固定延时保护，直接短接高压母线。",
+      "interfaces": "PG、FAULT与UART分离；LLC本地UVP/OCP独立。",
+      "worked_example": "264Vac、680µF、39Ω：浪涌9.57A，理想RC电阻能量47.4J；400→340V、800W保持18.87ms；20A OCP、5mΩ及20倍增益对应2V。",
+      "derivation": "先预充电，再旁路继电器、PFC软启动、PG确认、LLC软启动；OCP用独立硬件。\nRpre≥√2Vac,max/Iinrush; E=CV²/2; t_hold=C(Vstart²−Vstop²)/(2P)",
+      "bench_steps": [
+        "先低能量注入测试，测FAULT至VGS关断延迟，检查热态重启。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "先预充电，再旁路继电器、PFC软启动、PG确认、LLC软启动；OCP用独立硬件。",
+        "264Vac、680µF、39Ω：浪涌9.57A，理想RC电阻能量47.4J；400→340V、800W保持18.87ms；20A OCP、5mΩ及20倍增益对应2V。",
+        "先低能量注入测试，测FAULT至VGS关断延迟，检查热态重启。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
+    },
+    {
+      "id": "pfc-32",
+      "module": "pfc",
+      "number": 32,
+      "title": "PCB布局、寄生电感及RC Snubber",
+      "status": "full",
+      "summary": "优先缩小MOS、Boost二极管和母线高频电容的换流回路；驱动与采样采用Kelvin。",
+      "formula": [
+        "V=L·di/dt",
+        "fr=1/(2π√LC)",
+        "Cp=Cadd/[(f1/f2)²−1]",
+        "Rs≈√(Lp/Cp)",
+        "P≈CsV²fs",
+        "Icm=C·dv/dt"
+      ],
+      "waveform": "VDS过冲与衰减振铃、VGS误导通尖峰；示波器测量相邻波峰周期。",
+      "selection": "AD20设HV_BUS、SWITCH、GATE、SENSE规则；高频旁路100nF～1µF、630V级作为初选；安规间距按实际标准。",
+      "debug": "短探头回路，比较无RC与不同RC下VDS、VGS、效率、温升及EMI。",
+      "mistakes": "扩大SW铜皮、远端取样、盲目增大Snubber电容。",
+      "interfaces": "共模噪声耦合EMI与LLC；优化母线高频回流。",
+      "worked_example": "30MHz原振铃，外接330pF降至20MHz：Cp=264pF、Lp≈106.6nH、Rs≈20.1Ω；680pF在400V/65kHz全幅充放电约7.07W。",
+      "derivation": "优先缩小MOS、Boost二极管和母线高频电容的换流回路；驱动与采样采用Kelvin。\nV=L·di/dt; fr=1/(2π√LC); Cp=Cadd/[(f1/f2)²−1]; Rs≈√(Lp/Cp); P≈CsV²fs; Icm=C·dv/dt",
+      "bench_steps": [
+        "短探头回路，比较无RC与不同RC下VDS、VGS、效率、温升及EMI。",
+        "记录输入电压、负载、温度及PCB版本，使用额定合适的差分测量设备。",
+        "对照算例与实测，记录偏差及整改前后结果。"
+      ],
+      "questions": [
+        "本课核心控制或物理关系是什么？",
+        "如何复核本课800W算例及器件裕量？",
+        "出现所述异常波形时应优先检查什么？"
+      ],
+      "answers": [
+        "优先缩小MOS、Boost二极管和母线高频电容的换流回路；驱动与采样采用Kelvin。",
+        "30MHz原振铃，外接330pF降至20MHz：Cp=264pF、Lp≈106.6nH、Rs≈20.1Ω；680pF在400V/65kHz全幅充放电约7.07W。",
+        "短探头回路，比较无RC与不同RC下VDS、VGS、效率、温升及EMI。"
+      ],
+      "source_note": "根据历史学习主题重编的工程讲义（非逐字聊天存档）；例值为理论估算，不是样机实测。"
     },
     {
       "id": "mag-01",
@@ -2748,6 +3111,12 @@ window.POWER_ACADEMY_DATA = {
   ],
   "updates": [
     {
+      "date": "2026-11-20",
+      "title": "新增PFC第23～32课",
+      "detail": "新增10课工程讲义，覆盖功率器件、磁件、环路、前馈、保护与PCB；历史内容按要点重编。",
+      "lesson_id": "pfc-32"
+    },
+    {
       "date": "2026-11-05",
       "title": "第三版：62课扩写为工程讲义",
       "detail": "补齐6课；逐课增加推导、算例、排查步骤与参考答案，纠正磁性器件前6课题文错位及LLC电流定义；增加原始资料、应用场景、搜索链接、完成状态和新增课程防覆盖。所有算例与测试计划均标明假设，不代替样机实测。",
@@ -2765,7 +3134,11 @@ window.POWER_ACADEMY_DATA = {
       "detail": "收录PFC 22课、磁性器件6课的章节索引与工程摘要；建立搜索、课程详情、进度与更新记录。"
     }
   ],
-  "next": null,
-  "version": "3.1.0",
-  "updated_at": "2026-11-05"
+  "next": {
+    "module": "pfc",
+    "number": 33,
+    "title": "整机损耗计算、效率优化与散热设计"
+  },
+  "version": "3.2.0",
+  "updated_at": "2026-11-20"
 };
