@@ -12,7 +12,7 @@
 @media(max-width:760px){.topbar{height:64px;padding:0 13px;gap:7px}.hamburger{display:block}.brand-mark{width:32px;height:32px;font-size:19px}.brand-label strong{font-size:13px}.header-actions{gap:5px}.searchbox{width:39px;padding:0;justify-content:center;background:transparent;border:0}.searchbox:focus-within{position:absolute;right:10px;top:12px;width:calc(100vw - 20px);padding:0 12px;background:#243450;border:1px solid #385077;z-index:22;justify-content:initial}.searchbox input{max-width:0}.searchbox:focus-within input{max-width:initial}.searchbox kbd{display:none}.top-link{display:none}.header-actions .button{font-size:0;padding:9px 11px}.header-actions .button::after{content:'＋';font-size:20px}.sidebar{position:fixed;top:64px;bottom:0;left:0;z-index:18;transform:translateX(-105%);transition:transform .22s;width:294px;box-shadow:8px 0 30px #00000015}.sidebar.open{transform:translateX(0)}.nav-scroller{top:64px;height:calc(100vh - 64px)}.main-inner{padding:25px 17px 55px}.hero{padding:28px 23px}.hero h1{font-size:24px}.stat-grid{gap:8px}.stat-card{padding:16px 13px}.stat-number{font-size:24px}.stat-label{font-size:10px}.module-grid{grid-template-columns:1fr}.page-title{font-size:27px}.course-header h1{font-size:23px}.card{padding:18px}.log-row{grid-template-columns:1fr;gap:5px}.editor-grid{grid-template-columns:1fr}.shade{inset:64px 0 0}}
 
 </style>
-  <script src="./content.js?v=3.3.0"></script>
+  <script src="./content.js?v=3.4.0"></script>
   <script type="module">
 (() => {
   'use strict';
@@ -130,13 +130,95 @@
     out.parentElement.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',update));update();
   }
 
+
+  function magVisual(n) {
+    const T=(x,y,t,c='#334155',size=14)=>'<text x="'+x+'" y="'+y+'" fill="'+c+'" font-size="'+size+'">'+esc(t)+'</text>';
+    const P=(d,c='#334155',w=2,dash='')=>'<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round" '+(dash?'stroke-dasharray="'+dash+'"':'')+'/>';
+    const R=(x,y,w,h,c,stroke='#94a3b8')=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" fill="'+c+'" stroke="'+stroke+'"/>';
+    const C=(x,y,r,c)=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+c+'"/>';
+    const blue='#285fe5',green='#168569',orange='#d97706',red='#dc4545',gray='#64748b';
+    let b='';
+    const axes=(x=70,y=200)=>P('M'+x+' 35 V'+y+' H600',gray,1.4)+T(574,y+22,'→');
+    switch(n){
+      case 1:
+        b=T(18,22,'B-H磁化与饱和（概念）')+P('M310 35 V215 M55 125 H600',gray,1.4)+P('M58 209 C170 209 225 178 270 150 S370 78 420 55 S525 40 593 40',blue,3)+P('M310 125 L381 77 L460 47',orange,1.5,'5 4')+T(315,41,'B (T)')+T(570,147,'H (A/m)')+T(396,92,'进入饱和区：斜率降低',red)+T(20,246,'电压不变时，增量电感下降 → 电流上升斜率增大');
+        break;
+      case 2:
+        b=T(15,22,'材料曲线怎么读：示意趋势，不是材料实测')+P('M48 42 V207 H300 M357 42 V207 H620',gray,1.5)+P('M55 56 C125 57 180 62 216 94 S269 165 293 188',blue,3)+P('M365 194 Q465 183 520 128 T614 44',orange,3)+T(55,39,'L/L₀')+T(220,228,'DC偏置 →')+T(361,39,'Pv')+T(538,228,'ΔB增大 →')+T(15,251,'查偏置保持率、损耗密度及测试温度；饱和与热限制必须同时验证。');
+        break;
+      case 3:
+        b=T(15,20,'电压的时间积分决定磁通，而不是电压瞬时值')+P('M80 83 H606 M80 194 H606',gray,1,'4 3')+T(12,58,'v')+T(12,170,'B')+P('M80 50 H210 V116 H340 V50 H470 V116 H600',blue,3)+P('M80 235 L210 153 L340 235 L470 153 L600 235',green,3)+T(90,44,'+V')+T(230,130,'−V')+T(98,151,'+Bpk')+T(98,250,'−Bpk')+T(378,183,'ΔBpp = 2Bpk（对称时）')+T(15,275,'正伏秒与负伏秒平衡，磁通不会逐周期漂移。');
+        break;
+      case 4:
+        b=T(15,22,'圆线截面：电流密度分布示意')+C(135,117,70,'#e0ad69')+C(320,117,70,'#d97706')+C(320,117,51,'#f4d7ad')+C(505,117,70,'#e0ad69')+P('M540 60 Q585 117 540 174',red,13)+T(80,211,'低频：较均匀')+T(255,211,'趋肤：表面集中')+T(438,211,'邻近：一侧集中')+T(20,246,'细股换位、减少层数、远离气隙；实际损耗取决于电流频谱。');
+        break;
+      case 5:
+        b=T(15,22,'绕组排布：同样匝比也可能有不同漏感与寄生电容')+R(48,48,247,155,'#f1f5f9')+R(345,48,247,155,'#f1f5f9')+R(62,66,93,119,'#dbeafe',blue)+R(166,66,111,119,'#ffedd5',orange)+R(360,66,65,119,'#dbeafe',blue)+R(435,66,65,119,'#ffedd5',orange)+R(510,66,65,119,'#dbeafe',blue)+T(99,130,'P')+T(213,130,'S')+T(380,130,'P1')+T(459,130,'S')+T(534,130,'P2')+T(91,227,'P-S：简单结构')+T(375,227,'P1-S-P2：交错结构')+T(15,252,'间距与绝缘层必须按安规和制造要求决定，示意不代表实际尺寸。');
+        break;
+      case 6:
+        b=T(15,22,'真实变压器原边折算等效电路（简化）')+P('M35 76 H92 q8 -20 16 0 q8 -20 16 0 q8 -20 16 0 H190 H310 M35 211 H310',blue,2)+P('M210 76 V103 q-20 8 0 16 q-20 8 0 16 q-20 8 0 16 V211',green,3)+P('M310 76 V98 q20 8 0 16 q20 8 0 16 q20 8 0 16 V211 M365 98 q-20 8 0 16 q-20 8 0 16 q-20 8 0 16 V211 H578 V76 H365 V98',gray,2)+P('M338 96 V180 M347 96 V180',gray,2)+T(100,55,'Llk 漏感',blue)+T(225,136,'Lm 励磁',green)+T(315,55,'理想变比 n:1')+T(480,63,'副边')+T(15,250,'开路与短路测量得到的是端口参数，必须与所采用的模型一致。');
+        break;
+      case 7:
+        b=T(15,22,'集中气隙与边缘磁场（磁芯截面示意）')+R(40,45,265,165,'#b0bac7',gray)+R(83,83,179,89,'#fff')+R(156,55,34,63,'#b0bac7',gray)+R(156,131,34,70,'#b0bac7',gray)+P('M172 60 V115 Q120 125 172 138 V200 M177 60 V115 Q231 125 177 138 V200',blue,2)+T(195,126,'气隙',red)+P('M355 35 V210 H620',gray,1.5)+P('M355 210 L452 65 L612 65',orange,3)+P('M355 210 L559 65 L612 65',green,3)+T(359,46,'B')+T(589,231,'I →')+T(402,95,'小气隙',orange)+T(497,143,'大气隙',green)+T(15,252,'气隙增大：同电流B下降；达到相同B限制所需电流提高。');
+        break;
+      case 8:{
+        let pts=[];for(let j=0;j<=300;j++){const t=j/300,base=138*Math.sin(Math.PI*t),tri=(j%6<3?j%6:6-j%6)/3;pts.push((55+550*t).toFixed(1)+' '+(210-Math.max(0,base+12*(tri-.5)*Math.sin(Math.PI*t))).toFixed(1));}
+        b=T(15,22,'PFC电感电流：工频包络与高频纹波')+P('M55 35 V210 H620',gray,1.5)+P('M'+pts.join(' L'),blue,2)+P('M55 210 Q330 -66 605 210',orange,1,'4 4')+T(67,50,'IL')+T(265,62,'Ipk：饱和检查')+T(280,239,'整流半周期')+T(15,267,'高频纹波与绝对峰值不是一回事；最大纹波不必在工频峰值。');break;}
+      case 9:
+        b=T(15,22,'LLC：串联Lr/Cr与并联Lm')+P('M25 83 H75 q8 -20 16 0 q8 -20 16 0 q8 -20 16 0 H160 M160 66 V100 M174 66 V100 M174 83 H265 H335 M25 210 H335',blue,2.5)+P('M265 83 V111 q-20 8 0 16 q-20 8 0 16 q-20 8 0 16 V210',green,3)+P('M335 83 V108 q20 8 0 16 q20 8 0 16 q20 8 0 16 V210 M390 108 q-20 8 0 16 q-20 8 0 16 q-20 8 0 16 V210 H590 V83 H390 V108 M362 105 V180 M371 105 V180',gray,2)+T(89,60,'Lr = 30µH',blue)+T(143,120,'Cr = 68nF',blue)+T(279,142,'Lm = 300µH',green)+T(400,64,'副边整流与负载')+T(15,250,'Ir 为谐振总电流，Im 为励磁电流；副边折算电流与 Ir−Im 相关。');
+        break;
+      case 10:
+        b=T(15,22,'绝缘：穿空气的间隙 vs 沿表面的爬电')+R(30,50,580,145,'#f1f5f9')+R(70,115,140,60,'#dbeafe',blue)+R(430,115,140,60,'#ffedd5',orange)+R(270,83,100,92,'#cbd5e1',gray)+T(100,148,'原边')+T(465,148,'副边')+P('M210 115 L270 83 H370 L430 115',red,2,'4 4')+P('M210 175 H270 V83 H370 V175 H430',green,3)+T(236,62,'空气路径示意',red)+T(225,214,'沿绝缘表面路径',green)+T(15,249,'仅展示概念，不是实际安规最短路径；确认标准、结构、海拔和绝缘系统。');
+        break;
+      case 11:
+        b=T(15,22,'800W LLC磁件损耗预算（示例合计 6.85W）')+R(35,65,525,42,'#eef2f7')+R(35,65,230,42,blue,blue)+R(265,65,124,42,green,green)+R(389,65,133,42,orange,orange)+R(522,65,38,42,gray,gray)+T(69,90,'磁芯 3.00W','white')+T(274,90,'原边 1.62W','white',12)+T(397,90,'副边 1.73W','white',12)+T(35,140,'其他 0.50W')+P('M35 220 Q110 166 185 156 T340 145 H560',red,2.5)+T(374,177,'热稳态：温升趋缓')+T(15,252,'损耗预算必须来自实际材料、波形、绕组与温度，而非仅凭功率等级。');
+        break;
+      case 12:
+        b=T(15,22,'样品测量：仪器补偿、开路、短路、验收')+R(20,58,150,88,'#eaf0ff',blue)+T(48,89,'LCR / 四线表')+T(37,116,'先做夹具补偿')+P('M170 79 H217 V92 M170 127 H217 V117',blue,2)+R(217,55,184,106,'#f1f5f9',gray)+P('M239 92 q10 -18 20 0 q10 -18 20 0 q10 -18 20 0 M319 92 q10 -18 20 0 q10 -18 20 0 q10 -18 20 0 M307 65 V143',gray,2)+T(237,140,'原边')+T(340,140,'副边')+P('M401 85 H470 M401 128 H470',green,2)+T(474,88,'开路：Lopen')+T(474,131,'短接：Lshort')+T(20,196,'记录：频率、电平、温度、绕组接法、仪器、批次')+T(20,230,'低压测试 → 限能验证 → 热稳态 → 合规绝缘试验');
+        break;
+      default:return waveform('mag');
+    }
+    return '<svg viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="磁性器件专题示意">'+b+'</svg>';
+  }
+  function magCalc(n) {
+    const rows={
+      1:[['N','匝数',10],['A','Ae (mm²)',100],['V','电压 V',10],['t','持续时间 µs',10]],
+      3:[['N','匝数',28],['A','Ae (mm²)',200],['V','绕组方波幅值 V',200],['f','频率 kHz',100]],
+      4:[['f','频率 kHz',65],['I','RMS电流 A',6.5],['J','电流密度 A/mm²',4],['d','单股裸铜直径 mm',0.2]],
+      7:[['N','匝数',106],['A','Ae (mm²)',100],['L','目标电感 µH',2943],['I','峰值电流 A',0.825]],
+      8:[['V','瞬时整流电压 V',120.2],['L','电感 µH',470],['f','频率 kHz',65],['I','该时刻平均电流 A',14.01]],
+      9:[['Lr','Lr (µH)',30],['Lm','Lm (µH)',300],['Cr','Cr (nF)',68]],
+      11:[['Pv','磁芯损耗密度 kW/m³',150],['Ve','有效体积 cm³',20],['I','绕组RMS A',8],['R','有效热态电阻 mΩ',80]]
+    }[n];if(!rows)return '';
+    return '<div class="worked-example"><h3>交互计算：改变参数，观察结果</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px">'+rows.map(a=>'<label style="font-size:12px;color:#536784">'+esc(a[1])+'<input type="number" step="any" min="0.000001" data-magnet="'+a[0]+'" value="'+a[2]+'" style="display:block;width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:5px"></label>').join('')+'</div><p id="magResult" style="margin-top:14px;font-weight:600"></p><p class="small muted">简化教学模型；饱和、温升、绝缘、波形和实际材料公差另行校核。</p></div>';
+  }
+  function bindMag(n){
+    const out=document.getElementById('magResult');if(!out)return;
+    const nodes=Array.from(out.parentElement.querySelectorAll('input[data-magnet]'));
+    function update(){
+      const v=Object.fromEntries(nodes.map(e=>[e.dataset.magnet,+e.value]));
+      if(Object.values(v).some(x=>!Number.isFinite(x)||x<=0)){out.textContent='请输入正数。';return;}
+      const fx=(x,m=3)=>x.toFixed(m);let t='';
+      if(n===1)t='磁通变化 ΔB = '+fx(v.V*v.t/(v.N*v.A))+' T；ΔΦ = '+fx(v.V*v.t/v.N)+' µWb。';
+      if(n===3){const B=v.V*250/(v.f*v.N*v.A);t='对称方波 Bpk = '+fx(B)+' T；ΔBpp = '+fx(2*B)+' T。'}
+      if(n===4){const A=v.I/v.J,delta=Math.sqrt(1.724e-8/(Math.PI*v.f*1e3*4*Math.PI*1e-7))*1e3;t='铜趋肤深度 '+fx(delta)+' mm；裸铜面积 '+fx(A)+' mm²；至少 '+Math.ceil(A/(Math.PI*v.d*v.d/4))+' 股（未计绝缘、工艺）。'}
+      if(n===7){const lg=4*Math.PI*1e-7*v.N*v.N*v.A*1e-6/(v.L*1e-6)*1000,B=v.L*v.I/(v.N*v.A);t='气隙主导等效总气隙 '+fx(lg)+' mm；AL '+fx(v.L*1000/v.N**2,1)+' nH/匝²；Bpk '+fx(B)+' T；储能 '+fx(.0005*v.L*v.I**2)+' mJ。'}
+      if(n===8){if(v.V>=400){out.textContent='此Boost CCM估算要求瞬时Vin低于400V母线。';return;}const D=1-v.V/400,di=v.V*D*1000/(v.L*v.f);t='D = '+fx(D*100,1)+'%；ΔIL = '+fx(di)+' App；Ipk = '+fx(v.I+di/2)+' A；'+(v.I-di/2>0?'谷值 '+fx(v.I-di/2)+' A。':'谷值≤0，CCM模型不适用。');}
+      if(n===9){const fr=1/(2*Math.PI*Math.sqrt(v.Lr*1e-6*v.Cr*1e-9))/1000,fm=1/(2*Math.PI*Math.sqrt((v.Lr+v.Lm)*1e-6*v.Cr*1e-9))/1000;t='fr = '+fx(fr,1)+' kHz；fm = '+fx(fm,1)+' kHz；Lm/Lr = '+fx(v.Lm/v.Lr,2)+'。';}
+      if(n===11){const pc=v.Pv*v.Ve/1000,pu=v.I*v.I*v.R/1000;t='磁芯 '+fx(pc)+' W；绕组 '+fx(pu)+' W；小计 '+fx(pc+pu)+' W（未计其他损耗）。';}
+      out.textContent=t;
+    }
+    nodes.forEach(e=>e.addEventListener('input',update));update();
+  }
+
   function lessonPage(l) {
     expanded=l.module;
     const ls=lessonsIn(l.module),idx=ls.findIndex(x=>x.id===l.id),prev=ls[idx-1],nextLesson=ls[idx+1];
-    const sections=[['core','01','核心原理与推导',para(l.summary)+studyBlock('推导、因果关系与适用边界',l.derivation)],['wave','02','关键电压 / 电流波形',`<div class="visual">${/^flyback-(13|14|15)$/.test(l.id)?srVisual(l.id):waveform(l.module)}</div><div style="height:10px"></div><p class="small muted" style="margin:8px 0 12px">上图为本拓扑共用的理想化基础示意；本课的具体正常/异常判据见下文，不能替代实测波形。</p>${para(l.waveform)}${srCalc(l.id)}`],['formula','03','重要公式',`<div class="formula-box">${(l.formula||[]).map(f=>`<div>${esc(f)}</div>`).join('')}</div>`],['select','04','设计、选型与计算实例',para(l.selection)+(l.worked_example?`<div class="worked-example"><h3>计算实例 · 先核对假设与单位</h3>${para(l.worked_example)}</div>`:'')],['debug','05','调试步骤与故障判断',para(l.debug)+(l.bench_steps?.length?`<div class="study-block"><h3>可复现的实操顺序</h3>${ordered(l.bench_steps)}</div>`:'')],['mistakes','06','常见错误',para(l.mistakes)],['interfaces','07','与前后级关系',para(l.interfaces)],['quiz','08','复习题',`<div>${(l.questions||[]).map((q,i)=>`<div class="question"><strong>${i+1}.</strong> ${esc(q)}</div>`).join('')}</div>${l.answers?.length?`<details class="review-answers"><summary>参考答案 · 建议先独立作答</summary>${ordered(l.answers)}</details>`:''}`]];
+    const sections=[['core','01','核心原理与推导',para(l.summary)+studyBlock('推导、因果关系与适用边界',l.derivation)],['wave','02','关键电压 / 电流波形',`<div class="visual">${l.module==="mag"?magVisual(l.number):/^flyback-(13|14|15)$/.test(l.id)?srVisual(l.id):waveform(l.module)}</div><div style="height:10px"></div><p class="small muted" style="margin:8px 0 12px">上图为教学示意，不是实际材料曲线或实测波形；具体判断见下文。</p>${para(l.waveform)}${srCalc(l.id)}${l.module==="mag"?magCalc(l.number):""}`],['formula','03','重要公式',`<div class="formula-box">${(l.formula||[]).map(f=>`<div>${esc(f)}</div>`).join('')}</div>`],['select','04','设计、选型与计算实例',para(l.selection)+(l.worked_example?`<div class="worked-example"><h3>计算实例 · 先核对假设与单位</h3>${para(l.worked_example)}</div>`:'')],['debug','05','调试步骤与故障判断',para(l.debug)+(l.bench_steps?.length?`<div class="study-block"><h3>可复现的实操顺序</h3>${ordered(l.bench_steps)}</div>`:'')],['mistakes','06','常见错误',para(l.mistakes)],['interfaces','07','与前后级关系',para(l.interfaces)],['quiz','08','复习题',`<div>${(l.questions||[]).map((q,i)=>`<div class="question"><strong>${i+1}.</strong> ${esc(q)}</div>`).join('')}</div>${l.answers?.length?`<details class="review-answers"><summary>参考答案 · 建议先独立作答</summary>${ordered(l.answers)}</details>`:''}`]];
     page.innerHTML=`<div class="eyebrow">课程学习 · ${esc(mName(l.module))}</div><div class="course-header"><div><div class="lesson-id">第 ${l.number} 课</div><h1>${esc(l.title)}</h1></div><span class="status-chip ${l.status==='summary'?'':'badge-pending'}">${l.status==='summary'?'重点摘要':'工程讲义'}</span></div><div class="description">应用场景：${esc(l.application||scenarios[l.module]||'按本课给定条件')}</div><div class="note">${esc(l.source_note||'本课按工程化结构整理。')} 本页算例均需按实际规格复核；原始资料见文末。波形示意与测试计划不代表用户样机的实测结果。</div><div class="course-toc">${sections.map(s=>`<a href="#${s[0]}" data-anchor="${s[0]}">${s[2]}</a>`).join('')}</div>${sections.map(s=>`<section class="card" id="${s[0]}"><div class="eyebrow" style="margin-bottom:8px">${s[1]} / 08</div><h2>${s[2]}</h2>${s[3]}</section>`).join('')}${referencesCard(l.references)}<div class="nav-bottom"><button class="button button-outline" ${prev?'':'disabled'} data-go="${prev?`#/course/${prev.id}`:''}">← 上一课</button><button class="button button-accent" ${nextLesson?'':'disabled'} data-go="${nextLesson?`#/course/${nextLesson.id}`:''}">下一课 →</button></div><p class="footnote">课程内容可持续更新；实验涉及高压市电和400V母线，请使用合格隔离/差分测量设备，遵循实验室安全规范。</p>`;
     page.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>x.dataset.go&&navigate(x.dataset.go));
     bindSr(l.id);
+    if(l.module==="mag")bindMag(l.number);
     page.querySelectorAll('[data-anchor]').forEach(x=>x.onclick=e=>{e.preventDefault();const el=document.getElementById(x.dataset.anchor);el?.scrollIntoView({behavior:'smooth',block:'start'});history.replaceState(null,'',`#/course/${l.id}`)});
   }
   function logs() {
