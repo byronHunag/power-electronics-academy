@@ -23,7 +23,7 @@ window.POWER_ACADEMY_DATA = {
       "id": "flyback",
       "name": "反激 Flyback",
       "subtitle": "DCM/CCM/BCM · 励磁电感 · 钳位 · 反馈",
-      "total": 15
+      "total": 16
     }
   ],
   "lessons": [
@@ -66,6 +66,10 @@ window.POWER_ACADEMY_DATA = {
         {
           "title": "TI UCC28180：CCM Boost PFC应用设计与控制",
           "url": "https://www.ti.com/lit/ds/symlink/ucc28180.pdf"
+        },
+        {
+          "title": "对照学习：单级反激APFC高PF控制与BCM时序（反激第16课）",
+          "url": "https://byronhunag.github.io/power-electronics-academy/#/course/flyback-16"
         }
       ]
     },
@@ -1647,7 +1651,7 @@ window.POWER_ACADEMY_DATA = {
       "selection": "先确定L、Ipk、允许Bmax和Ae，再反推匝数与气隙；计算需加入磁芯磁阻、边缘效应、气隙公差和高温裕量。",
       "debug": "要求AL或L的实测值并注明频率/电平，核对机械装配气隙、热态偏置下的L，检查气隙旁绕组温升。\n\nL值偏小先核对匝数和气隙；空载L正常而大电流下明显下降，检查磁芯饱和。",
       "mistakes": "只用简单气隙公式作为最终值；忽略磁芯磁阻、分段气隙、气隙边缘场和加工公差。",
-      "interfaces": "PFC电感需承受直流偏置；LLC的Lm也由磁路决定，过大/过小会改变励磁电流和ZVS条件。",
+      "interfaces": "PFC电感需承受直流偏置；LLC的Lm也由磁路决定，过大/过小会改变励磁电流和ZVS条件。\n延伸专题：反激第16课（flyback-16）通过伏秒平衡、Lm、Ipeak和气隙储能联系单级APFC高PF控制，并分析整流电压变化时ton、tdemag、d和fs的变化。",
       "questions": [
         "加大气隙而N、I不变，L和储能如何变化？",
         "AL=250nH且100µH需要几匝？",
@@ -1681,6 +1685,10 @@ window.POWER_ACADEMY_DATA = {
         {
           "title": "Magnetics：粉芯储能电感设计方法（中文）",
           "url": "https://www.mag-inc.com/zh-cn/design/design-guides/powder-core-inductor-design"
+        },
+        {
+          "title": "专题延伸：BP83223单级APFC高PF与变压器伏秒平衡（反激第16课）",
+          "url": "https://byronhunag.github.io/power-electronics-academy/#/course/flyback-16"
         }
       ]
     },
@@ -3348,9 +3356,81 @@ window.POWER_ACADEMY_DATA = {
       "status": "full",
       "application": "65W · 20V/3.25A · 65kHz反激同步整流专题",
       "source_note": "基于65W反激同步整流讨论重新整理。所有电压、电流、损耗及波形均为理论估算或示例，未上传原始PCB截图或实测数据。"
+    },
+    {
+      "id": "flyback-16",
+      "module": "flyback",
+      "number": 16,
+      "status": "full",
+      "title": "BP83223单级APFC：高功率因数、伏秒平衡与BCM/DCM时序",
+      "application": "230Vac/50Hz → 桥式整流 → 单级高PF反激；以BP83223集成GaN原边反馈控制器为例，关联磁性器件第7课",
+      "summary": "本课研究BP83223如何在单级反激拓扑中提高功率因数。交流230Vrms的电压峰值Vm=√2×230≈325V，整流后电压Vin=325|sin(2π×50t)|，每10ms经历一次0→325→0V。高PF的理想目标是让开关周期平均输入电流Ip≈Vin/Rin，即整流电流包络与整流电压同形、交流侧电流与电压同相。\n控制器数据手册第7页给出k0·d·ton=Vcomp：若稳态时Vcomp在一个工频周期内近似恒定，且控制未遇到限流、最小导通时间或频率约束，就有ton·d≈常数C。这里d=ton/Ts，ton和d本身都不是恒定值。\n特别说明：本课推导的ton、退磁时间和开关频率随Vin变化关系只适用于理想BCM。BP83223还有DCM、谷底开通、最大120kHz频率限制和频率折返控制；实际波形不能直接照理想公式绘制或断言具体切换电压。",
+      "formula": [
+        "交流峰值 Vm=√2·Vac,rms；整流瞬时电压 Vin(t)=Vm·|sin(2πft)|，f=50Hz",
+        "电感定律 vLm=Lm·di/dt；Ipeak=Vin·ton/Lm（导通前励磁电流=0）",
+        "Ip=[(1/2)·Ipeak·ton]/Ts=(1/2)·Ipeak·d（开关周期平均输入电流）",
+        "d=ton/Ts；k0·d·ton=Vcomp；C=Vcomp/k0≈ton·d",
+        "Ip=Vin·Vcomp/(2Lm·k0)=Vin/Rin；Rin=2Lm·k0/Vcomp",
+        "VR=(Np/Ns)·(Vo+VD)；理想BCM伏秒平衡：Vin·ton=VR·tdemag",
+        "BCM：d=VR/(Vin+VR)；ton=C·(1+Vin/VR)",
+        "BCM：tdemag=C·Vin·(Vin+VR)/VR²；Ts=C/d²",
+        "BCM：fs=(1/C)·[VR/(Vin+VR)]²；Ipeak=(C·Vin/Lm)·(1+Vin/VR)",
+        "DCM：Ts=ton+tdemag+tidle；toff=tdemag+tidle（不能用BCM的d公式）",
+        "正弦输入的PF=P/(Vrms·Irms)；理想同相无谐波时PF=1；若电压正弦：PF=cosφ1/√(1+THDi²)"
+      ],
+      "waveform": "【20ms工频时间轴】0ms→5ms→10ms→15ms→20ms：交流电压依次为0、+325、0、−325、0V；桥式整流输出电压则为0、325、0、325、0V。高PF控制使平均输入电流Ip随整流电压变化，峰值在约5ms与15ms附近。\n【放大至微秒时间轴】GaN导通时，原边开关电流由0按斜率Vin/Lm上升到Ipeak；关断后原边开关支路电流为零，但变压器励磁能量通过副边释放，折算励磁电流按−VR/Lm下降到0。原边开关电流的脉冲面积为(1/2)·Ipeak·ton，因此平均输入电流Ip=面积/Ts。\n【BCM】励磁电流下降到零后，理想模型立即开始下一周期；Vin上升→ton增长、tdemag增长、d减小、fs下降、Ipeak上升。Vin从峰顶下降至过零时趋势反向。\n【DCM】退磁完成后还存在tidle空闲段；实际BP83223等待频率窗口及谷底开通时机。电流的高频三角脉冲叠加在100Hz电流包络上；不要把它当成整个工频周期的正弦波，也不要把原边MOS开关支路电流与副边退磁电流混为一谈。",
+      "selection": "工程设计从输出功率、变压器Lm和反射电压VR出发，先计算不同工频相位的ton、tdemag、Ipeak、fs，再根据原厂限制修正。BP83223手册给出最高fs=120kHz、ton最小500ns/最大20µs、退磁检测屏蔽1.8µs、开通延时500ns；集成700V GaN，封装和热限制需独立核查。100W级例子不能直接视为140W连续输出已获保证。\n磁件选型不仅核对峰值电流与Bpk，还要积分整个工频周期、考虑高频电流脉冲以计算一次侧RMS铜损；另需核对漏感能量、RCD/钳位及VDS裕量。与mag-07的气隙设计衔接：Lm、Np、Ae、气隙会共同影响磁芯磁通、峰值电流与饱和温升。",
+      "derivation": "【第一步：原边峰值电流】GaN导通期间，理想原边励磁电感承受Vin；vLm=Lm·di/dt。由于DCM/BCM时每个导通开始前磁化电流为零，在一个短开关周期内Vin近似常数，积分得Ipeak=(Vin/Lm)ton。Vin越大，电流上升斜率越陡；ton越长，峰值越高。\n【第二步：为什么平均电流有1/2和d】在一个开关周期Ts内，输入端开关支路电流是底边ton、高Ipeak的三角形脉冲，积分面积=(1/2)Ipeak·ton。用面积除以Ts：Ip=(1/2)Ipeak·ton/Ts=(1/2)Ipeak·d。这里的1/2来自三角形面积；它不是正弦波有效值的1/√2。注意原边MOS关断时副边仍在退磁，不能误认为变压器中的储能瞬间为零。\n【第三步：50Hz、峰值与有效值】正弦交流电压vac(t)=Vm sin(ωt)，ω=2πf；一个周期平方平均为Vm²/2，所以Vac,rms=Vm/√2。230Vrms意味着Vm≈325V；桥堆输出（不考虑纹波与器件压降）为Vin(t)=325|sin(2π×50t)|，因此整流包络为100Hz。单级APFC应避免前端大电解把输入电流限制在正弦峰顶，否则即使输出稳压，PF和THD可能很差。\n【第四步：为什么需要ton·d恒定】把Ipeak代入面积公式，Ip=Vin·(ton·d)/(2Lm)。希望一个工频周期内平均输入电流Ip=K·Vin，则在Lm近似固定时必须让ton·d≈常数。BP83223第7页给出斜坡等效关系k0·d·ton=Vcomp，因此ton·d=Vcomp/k0=C。Vcomp由恒压环慢速调节负载功率；在一个工频周期内近似恒定，故Rin=2Lm/C=2Lm·k0/Vcomp，Ip≈Vin/Rin。\n【第五步：为何这就是PFC】对输入近似正弦电压，若输入电流也与电压同形且同相，电源从输入端表现为等效电阻，PF趋近于1。更一般地，PF=P/(Vrms Irms)，若供电电压正弦，PF=cosφ1/√(1+THDi²)。因此相位偏差和谐波均会降低PF；BP83223另有改善X电容轻载相移的PF增强控制，具体内部补偿数学模型未公开。\n【第六步：反射电压与伏秒平衡】定义原边反射电压VR=(Np/Ns)(Vo+VD)。GaN导通时原边Lm电压≈+Vin，励磁电流上升；关断且副边导通时≈−VR，励磁电流下降。完整退磁时：Vin·ton=VR·tdemag。这里tdemag是副边放电所需时间，不一定等于整个GaN关断时间toff。\n【第七步：理想BCM的占空比】理想BCM无空闲时间，也不计谷底等待，所以Ts=ton+tdemag。由tdemag=(Vin/VR)ton，d=ton/Ts=VR/(Vin+VR)。Vin上升时d下降，这是反激伏秒平衡决定的。\n【第八步：理想BCM导通时间】利用C=ton·d，得ton=C/d=C(1+Vin/VR)。所以在C、VR近似固定时，Vin上升、d减小，ton反而增长。这与常规固定频率PWM反激的直觉不同；不能把固定频率时的占空比趋势错误套成BP83223的ton趋势。\n【第九步：理想BCM的退磁时间】把ton代入tdemag=(Vin/VR)ton，得到tdemag=C·Vin(Vin+VR)/VR²。这是随着Vin上升较快增长的时间。对理想BCM，toff=tdemag；对实际有谷底等待或进入DCM时，toff>tdemag。\n【第十步：理想BCM开关频率】Ts=ton/d=C/d²，因此fs=1/Ts=d²/C=(1/C)[VR/(Vin+VR)]²。Vin上升，d减小，Ts变长，fs降低。反过来下降半周fs按理想公式升高，但在实际芯片中可能碰到最高120kHz和时序限制，不能外推到输入过零点。\n【第十一步：峰值和平均值不是同样形状】Ipeak=Vin·ton/Lm=(C·Vin/Lm)(1+Vin/VR)，不是随Vin严格线性；但Ip=(1/2)Ipeak·d=(C/2Lm)Vin，平均电流才与输入电压成正比。设计时，磁芯饱和看Ipeak及Bpk，输入PF分析看经高频周期平均后的电流包络，铜损还需要RMS积分，三个概念不能混淆。\n【第十二步：BCM与DCM边界】实际控制存在退磁完成后的等待：Ts=ton+tdemag+tidle；toff=tdemag+tidle，d=ton/Ts。此时不能继续用理想BCM的d=VR/(Vin+VR)来代入。不同工频相位和负载可能处于不同工作模式，BP83223还会按FB退磁检测、谷底时机及频率上限调节。数据手册第9页描述了BCM/DCM和频率折返，但没有给出按Vin一一确定模式边界的完整闭式公式；需实测核实。",
+      "worked_example": "【全部为教学假设，非BP83223实测】输入230Vac/50Hz，Lm=250µH，VR=100V，取C=ton·d=1µs。理想BCM公式：d=100/(Vin+100)；ton=(1+Vin/100)µs；tdemag=ton·Vin/100；fs=1/(ton+tdemag)；Ipeak=Vin·ton/250µH；Ip=(1/2)Ipeak·d。\nVin=50V：ton=1.50µs、tdemag=0.75µs、d=66.7%、fs=444.4kHz、Ipeak=0.30A、Ip=0.10A。\nVin=100V：ton=2.00µs、tdemag=2.00µs、d=50.0%、fs=250.0kHz、Ipeak=0.80A、Ip=0.20A。\nVin=200V：ton=3.00µs、tdemag=6.00µs、d=33.3%、fs=111.1kHz、Ipeak=2.40A、Ip=0.40A。\nVin=325V：ton=4.25µs、tdemag=13.81µs、d=23.5%、fs=55.4kHz、Ipeak≈5.53A、Ip=0.65A。\n特别警告：50V/100V理论所需fs分别444.4kHz/250kHz，均超过BP83223的120kHz上限，所以这两个点只能说明理想公式趋势，不是芯片真正的波形或工作模式。Vin→0附近的理想BCM公式更不能直接用于真实工作；实际将受限频、退磁与谷底控制约束。\n另从功率角度，理想DCM中单周期磁化能量E=(1/2)Lm·Ipeak²，平均功率P=E·fs=Vin·Ip=Vin²/Rin。若C=1µs、Lm=250µH，则Rin=2Lm/C=500Ω，在230Vrms下理想工频平均输入功率为230²/500=105.8W；实际需考虑效率、EMI电容电流和控制范围。",
+      "debug": "调试必须在隔离、防触电和探头额定值满足要求的条件下进行。先用功率分析仪记录90/115/230/264Vac等输入、不同负载的Pin、PF、THDi、Iin_rms；再观察输入交流电压和输入电流是否同相、过零附近是否明显畸变。\n用高压差分探头检查GaN漏源电压、用合适电流探头或正确差分方式观察原边电流，并同步观察FB退磁波形、COMP及VCC。分别在整流电压峰值附近和过零附近捕获数个开关周期，测量ton、实际toff、tdemag、fs和Ipeak，判断BCM/DCM/跳谷差异。\n不要直接用接地示波器探头地夹接到一次侧高压地或市电整流节点；测量功率器件VDS和电流应遵循实验室高压测量规程。若计算频率超过120kHz，不要将理论曲线判为测量目标，应先判断限频/谷底策略与模式变化。",
+      "bench_steps": [
+        "确认控制器型号与数据手册版本；核对PCB高压隔离、放电电阻及输入限流。上电前测量变压器Lm、匝比与漏感。",
+        "功率分析仪记录交流输入的Vrms、Irms、Pin、PF、THDi；负载先小后大，避免未经验证的100W/140W连续功率推断。",
+        "对准50Hz交流电压，在0ms/2.5ms/5ms/7.5ms/10ms附近分别采样高频开关波形；每点至少测量3～5个周期。",
+        "从GaN电流斜率di/dt与瞬时Vin估算Lm；比较正向电流上升与副边退磁期间FB波形，辨别真实tdemag及额外tidle。",
+        "逐点计算ton·d，并与COMP电压变化对应；峰顶/过零附近出现偏差时先核对谷底/限频/限流/前沿消隐，避免错误归因。",
+        "测芯片温升、变压器温升和VDS尖峰，再计算RMS铜损及磁芯Bpk余量；记录不同输入电压和负载以便迭代控制与磁件。"
+      ],
+      "mistakes": "错误1：认为50Hz的20ms内ton和d各自固定；实际是它们的乘积在理想高PF稳态下近似保持不变。\n错误2：把三角形平均电流Ip=(1/2)Ipeak·d与正弦有效值Irms=Im/√2混淆；二者适用不同波形。\n错误3：把整个MOS关断时间toff等同变压器退磁时间tdemag；只在理想BCM且无谷底等待等情况下才可近似。\n错误4：使用理想BCM公式算出超过120kHz甚至趋近1MHz，就认定芯片真的可以运行到该频率。\n错误5：用一个开关周期电流峰值直接评价PF；评价PF要看经工频时间尺度形成的电流包络及THDi。\n错误6：只看PF不看热损耗、磁通饱和和漏感尖峰；高PF不等于高效率，也不保证满足全部谐波标准。",
+      "interfaces": "前端：交流EMI滤波器的X电容充放电可能造成输入电流相移，轻载影响PF；BP83223资料提及PF增强控制，但未公开详细算法。注意整流后储能电容不能无限加大，否则阻碍正弦取电。\n磁件：联系「磁性器件第7课 mag-07」的气隙/Lm/储能/Bpk公式；第16课求出的最大Ipeak应反馈到气隙设计、绕组铜损和热验证。\n输出：单级APFC的输入瞬时功率有2倍工频波动，理想p(t)=Pavg[1−cos(2ωt)]，而快充恒压输出需要储能与环路处理100/120Hz纹波；还应匹配同步整流和USB PD后级功率管理。\n对比：传统Boost PFC+反激有独立母线稳压但元件较多；单级APFC器件数量较少，却需要同时兼顾PF、输出纹波、磁件和功率边界。",
+      "questions": [
+        "为什么230Vac/50Hz对应325V峰值和100Hz整流电压包络？",
+        "证明Ip=(1/2)Ipeak·d。这里的1/2为什么不是1/√2？",
+        "由k0·d·ton=Vcomp推导Rin=2Lm·k0/Vcomp，并说明Vcomp变化时输入功率怎样变化。",
+        "从Vin·ton=VR·tdemag推导理想BCM的d、ton、tdemag与fs，并解释Vin从100V升至325V时的趋势。",
+        "DCM时toff能否直接代入BCM伏秒平衡？为什么理想模型算出250kHz不能说明BP83223真的以250kHz开关？"
+      ],
+      "answers": [
+        "正弦波有效值Vm/√2；230×√2≈325V。桥式整流使负半周翻转为正，50Hz两半周各有一峰，故整流包络为100Hz。",
+        "开关周期内原边导通支路电流为底ton、高Ipeak的三角形；面积=(1/2)Ipeak·ton，除以Ts并用d=ton/Ts。1/2来自三角形面积，1/√2来自正弦波平方平均。",
+        "Ip=Vin·ton·d/(2Lm)，用ton·d=Vcomp/k0得Ip=Vin·Vcomp/(2Lm·k0)=Vin/Rin，所以Rin=2Lm·k0/Vcomp；COMP升高使等效输入电阻下降、输入功率增加（理想稳态）。",
+        "理想BCM：tdemag=(Vin/VR)ton，d=VR/(Vin+VR)，C=ton·d，故ton=C(1+Vin/VR)，tdemag=C Vin(Vin+VR)/VR²，fs=[VR/(Vin+VR)]²/C。Vin升高时ton和tdemag升高、d和fs下降。",
+        "DCM的toff=tdemag+tidle，退磁伏秒平衡只对应tdemag。BP83223受最高120kHz、谷底开通、频率折返与其他时序限制，250kHz只是违反约束的理想BCM计算值。"
+      ],
+      "source_note": "基于用户提供的晶丰明源BP83223中文数据手册Rev1.0（2025/05），第7页高PF控制、第8～9页谷底/BCM-DCM/频率控制以及第5页电气参数，并结合电感定律与伏秒平衡作原创推导。数据手册给出的芯片控制等效式是已知信息；VR=100V、Lm=250µH、C=1µs为教学假设，非BPS设计参数或实测数据。仅做工程学习与分析，不转载原厂客户资料；电气安全、器件降额与具体参考设计以原厂授权文件和测试为准。",
+      "references": [
+        {
+          "title": "晶丰明源BPS官方网站（BP83223资料可向原厂索取）",
+          "url": "https://www.bpsemi.com/"
+        },
+        {
+          "title": "关联课程：磁性器件第7课·气隙、Lm与储能",
+          "url": "https://byronhunag.github.io/power-electronics-academy/#/course/mag-07"
+        },
+        {
+          "title": "关联课程：PFC第1课·电流塑形与PF/THD",
+          "url": "https://byronhunag.github.io/power-electronics-academy/#/course/pfc-01"
+        }
+      ]
     }
   ],
   "updates": [
+    {
+      "date": "2026-11-23",
+      "title": "新增反激第16课：BP83223单级APFC高PF完整推导",
+      "detail": "补齐50Hz/100Hz电压电流包络、三角电流平均值、ton·d恒定与Rin；基于伏秒平衡推导BCM下ton、退磁时间、占空比、频率及峰值电流，强调DCM和120kHz限频边界；关联磁性器件第7课与PFC第1课。",
+      "lesson_id": "flyback-16"
+    },
     {
       "date": "2026-11-20",
       "title": "磁性器件12课基础与工程进阶扩写",
@@ -3392,6 +3472,6 @@ window.POWER_ACADEMY_DATA = {
     "number": 33,
     "title": "整机损耗计算、效率优化与散热设计"
   },
-  "version": "3.4.0",
-  "updated_at": "2026-11-20"
+  "version": "3.5.0",
+  "updated_at": "2026-11-23"
 };
