@@ -12,7 +12,7 @@
 @media(max-width:760px){.topbar{height:64px;padding:0 13px;gap:7px}.hamburger{display:block}.brand-mark{width:32px;height:32px;font-size:19px}.brand-label strong{font-size:13px}.header-actions{gap:5px}.searchbox{width:39px;padding:0;justify-content:center;background:transparent;border:0}.searchbox:focus-within{position:absolute;right:10px;top:12px;width:calc(100vw - 20px);padding:0 12px;background:#243450;border:1px solid #385077;z-index:22;justify-content:initial}.searchbox input{max-width:0}.searchbox:focus-within input{max-width:initial}.searchbox kbd{display:none}.top-link{display:none}.header-actions .button{font-size:0;padding:9px 11px}.header-actions .button::after{content:'＋';font-size:20px}.sidebar{position:fixed;top:64px;bottom:0;left:0;z-index:18;transform:translateX(-105%);transition:transform .22s;width:294px;box-shadow:8px 0 30px #00000015}.sidebar.open{transform:translateX(0)}.nav-scroller{top:64px;height:calc(100vh - 64px)}.main-inner{padding:25px 17px 55px}.hero{padding:28px 23px}.hero h1{font-size:24px}.stat-grid{gap:8px}.stat-card{padding:16px 13px}.stat-number{font-size:24px}.stat-label{font-size:10px}.module-grid{grid-template-columns:1fr}.page-title{font-size:27px}.course-header h1{font-size:23px}.card{padding:18px}.log-row{grid-template-columns:1fr;gap:5px}.editor-grid{grid-template-columns:1fr}.shade{inset:64px 0 0}}
 
 </style>
-  <script src="./content.js?v=3.4.0"></script>
+  <script src="./content.js?v=3.5.0"></script>
   <script type="module">
 (() => {
   'use strict';
@@ -98,6 +98,39 @@
     page.querySelectorAll('[data-mod]').forEach(x=>x.onclick=()=>{expanded=x.dataset.mod;nav(); const l=lessonsIn(x.dataset.mod)[0];navigate(l?`#/course/${l.id}`:'#/home')});
     $('homeAdd').onclick=()=>openEditor();
   }
+  function apfcVisual() {
+    const rectified = (base,amp) => Array.from({length:201},(_,i)=>{
+      const x=70+i*2.70, v=Math.abs(Math.sin(Math.PI*i/100));
+      return (i?'L':'M')+x.toFixed(2)+','+(base-amp*v).toFixed(2);
+    }).join(' ');
+    const ticks=[0,5,10,15,20].map(ms=>'<text x="'+(70+ms*27)+'" y="185" font-size="12" fill="#67778c" text-anchor="middle">'+ms+'ms</text>').join('');
+    return `<svg viewBox="0 0 700 435" role="img" aria-label="BP83223单级APFC: 工频整流电压与平均输入电流、DCM开关周期原边脉冲及理想BCM变化趋势">
+      <text x="16" y="22" font-size="16" font-weight="700" fill="#1b335a">① 50Hz交流整流后的100Hz包络（20ms工频周期）</text>
+      <line x1="70" y1="165" x2="632" y2="165" stroke="#8793a7"/><line x1="70" y1="45" x2="70" y2="165" stroke="#8793a7"/>
+      <path d="${rectified(165,100)}" stroke="#245ee6" stroke-width="3" fill="none"/>
+      <path d="${rectified(165,64)}" stroke="#e05045" stroke-width="2.7" fill="none"/>
+      <text x="77" y="48" font-size="13" fill="#245ee6">蓝：整流电压 Vin</text>
+      <text x="234" y="48" font-size="13" fill="#c33731">红：开关周期平均电流 Ip</text>
+      ${ticks}
+      <text x="425" y="203" font-size="11" fill="#67778c">两曲线使用不同幅度标度，表示 Ip ∝ Vin</text>
+      <text x="16" y="234" font-size="16" font-weight="700" fill="#1b335a">② 放大到一个开关周期：原边MOS电流与退磁</text>
+      <line x1="65" y1="355" x2="369" y2="355" stroke="#8793a7"/><line x1="65" y1="248" x2="65" y2="355" stroke="#8793a7"/>
+      <path d="M65 355 L170 265 L170 355 L365 355" fill="none" stroke="#e05045" stroke-width="3"/>
+      <path d="M170 265 L255 355 L365 355" fill="none" stroke="#245ee6" stroke-width="2.4" stroke-dasharray="6 4"/>
+      <path d="M65 355 L170 265 L170 355 Z" fill="#ffe5e2" opacity="0.55"/>
+      <text x="102" y="383" font-size="13" fill="#c33731" text-anchor="middle">ton</text>
+      <text x="212" y="383" font-size="13" fill="#245ee6" text-anchor="middle">tdemag</text>
+      <text x="306" y="383" font-size="13" fill="#64748b" text-anchor="middle">tidle</text>
+      <text x="66" y="406" font-size="12" fill="#66768e">红：MOS开关支路电流；蓝虚线：等效退磁斜坡（非MOS电流）</text>
+      <text x="412" y="266" font-size="14" font-weight="700" fill="#234a7b">③ 理想BCM趋势（Vin上升）</text>
+      <text x="412" y="298" font-size="14" fill="#2d4264">ton ↑ ，tdemag ↑</text>
+      <text x="412" y="327" font-size="14" fill="#2d4264">占空比 d ↓ ，fs ↓</text>
+      <text x="412" y="356" font-size="14" fill="#2d4264">Ipeak ↑ ，Ip ∝ Vin</text>
+      <text x="412" y="388" font-size="12" fill="#b45309">仅理想BCM；实际有DCM/谷底/限频</text>
+      <text x="412" y="407" font-size="12" fill="#b45309">手册最高频率120kHz</text>
+    </svg>`;
+  }
+
   function waveform(m) {
     if (m==='pfc') return `<svg viewBox="0 0 700 212" role="img" aria-label="Boost PFC栅极、电感电流和母线纹波示意"><g stroke="#dce3ef"><path d="M66 38H685M66 110H685M66 177H685"/></g><g fill="#60728d" font-size="15"><text x="12" y="44">VGS</text><text x="12" y="117">IL</text><text x="12" y="184">VBUS</text></g><path d="M70 28H125V50H175V28H235V50H288V28H355V50H405V28H468V50H530V28H589V50H650" stroke="#2b6de7" stroke-width="3" fill="none"/><path d="M70 121L100 95L130 121L160 94L190 121L220 93L250 121L280 94L310 121L340 95L370 121L400 96L430 121L460 97L490 121L520 98L550 121L580 100L610 121L640 102" stroke="#17a18a" stroke-width="2.5" fill="none"/><path d="M70 174Q155 166 230 174T390 174T550 174T680 174" stroke="#d88a30" stroke-width="2.5" fill="none"/><text x="452" y="204" fill="#8c97a8" font-size="13">相对波形示意，非同一时间比例</text></svg>`;
     if (m==='mag') return `<svg viewBox="0 0 700 212" role="img" aria-label="磁性器件原边电压、磁通密度和励磁电流示意"><g stroke="#dce3ef"><path d="M66 38H685M66 110H685M66 177H685"/></g><g fill="#60728d" font-size="15"><text x="12" y="44">Vpri</text><text x="12" y="117">B</text><text x="12" y="184">iLm</text></g><path d="M70 25H220V53H370V25H520V53H670" stroke="#2b6de7" stroke-width="3" fill="none"/><path d="M70 135L220 85L370 135L520 85L670 135" stroke="#17a18a" stroke-width="2.5" fill="none"/><path d="M70 188L220 165L370 188L520 165L670 188" stroke="#d88a30" stroke-width="2.5" fill="none"/><text x="466" y="205" fill="#8c97a8" font-size="13">理想化磁通/电流示意</text></svg>`;
@@ -214,7 +247,7 @@
   function lessonPage(l) {
     expanded=l.module;
     const ls=lessonsIn(l.module),idx=ls.findIndex(x=>x.id===l.id),prev=ls[idx-1],nextLesson=ls[idx+1];
-    const sections=[['core','01','核心原理与推导',para(l.summary)+studyBlock('推导、因果关系与适用边界',l.derivation)],['wave','02','关键电压 / 电流波形',`<div class="visual">${l.module==="mag"?magVisual(l.number):/^flyback-(13|14|15)$/.test(l.id)?srVisual(l.id):waveform(l.module)}</div><div style="height:10px"></div><p class="small muted" style="margin:8px 0 12px">上图为教学示意，不是实际材料曲线或实测波形；具体判断见下文。</p>${para(l.waveform)}${srCalc(l.id)}${l.module==="mag"?magCalc(l.number):""}`],['formula','03','重要公式',`<div class="formula-box">${(l.formula||[]).map(f=>`<div>${esc(f)}</div>`).join('')}</div>`],['select','04','设计、选型与计算实例',para(l.selection)+(l.worked_example?`<div class="worked-example"><h3>计算实例 · 先核对假设与单位</h3>${para(l.worked_example)}</div>`:'')],['debug','05','调试步骤与故障判断',para(l.debug)+(l.bench_steps?.length?`<div class="study-block"><h3>可复现的实操顺序</h3>${ordered(l.bench_steps)}</div>`:'')],['mistakes','06','常见错误',para(l.mistakes)],['interfaces','07','与前后级关系',para(l.interfaces)],['quiz','08','复习题',`<div>${(l.questions||[]).map((q,i)=>`<div class="question"><strong>${i+1}.</strong> ${esc(q)}</div>`).join('')}</div>${l.answers?.length?`<details class="review-answers"><summary>参考答案 · 建议先独立作答</summary>${ordered(l.answers)}</details>`:''}`]];
+    const sections=[['core','01','核心原理与推导',para(l.summary)+studyBlock('推导、因果关系与适用边界',l.derivation)],['wave','02','关键电压 / 电流波形',`<div class="visual">${l.id==="flyback-16"?apfcVisual():l.module==="mag"?magVisual(l.number):/^flyback-(13|14|15)$/.test(l.id)?srVisual(l.id):waveform(l.module)}</div><div style="height:10px"></div><p class="small muted" style="margin:8px 0 12px">上图为教学示意，不是实际材料曲线或实测波形；具体判断见下文。</p>${para(l.waveform)}${srCalc(l.id)}${l.module==="mag"?magCalc(l.number):""}`],['formula','03','重要公式',`<div class="formula-box">${(l.formula||[]).map(f=>`<div>${esc(f)}</div>`).join('')}</div>`],['select','04','设计、选型与计算实例',para(l.selection)+(l.worked_example?`<div class="worked-example"><h3>计算实例 · 先核对假设与单位</h3>${para(l.worked_example)}</div>`:'')],['debug','05','调试步骤与故障判断',para(l.debug)+(l.bench_steps?.length?`<div class="study-block"><h3>可复现的实操顺序</h3>${ordered(l.bench_steps)}</div>`:'')],['mistakes','06','常见错误',para(l.mistakes)],['interfaces','07','与前后级关系',para(l.interfaces)],['quiz','08','复习题',`<div>${(l.questions||[]).map((q,i)=>`<div class="question"><strong>${i+1}.</strong> ${esc(q)}</div>`).join('')}</div>${l.answers?.length?`<details class="review-answers"><summary>参考答案 · 建议先独立作答</summary>${ordered(l.answers)}</details>`:''}`]];
     page.innerHTML=`<div class="eyebrow">课程学习 · ${esc(mName(l.module))}</div><div class="course-header"><div><div class="lesson-id">第 ${l.number} 课</div><h1>${esc(l.title)}</h1></div><span class="status-chip ${l.status==='summary'?'':'badge-pending'}">${l.status==='summary'?'重点摘要':'工程讲义'}</span></div><div class="description">应用场景：${esc(l.application||scenarios[l.module]||'按本课给定条件')}</div><div class="note">${esc(l.source_note||'本课按工程化结构整理。')} 本页算例均需按实际规格复核；原始资料见文末。波形示意与测试计划不代表用户样机的实测结果。</div><div class="course-toc">${sections.map(s=>`<a href="#${s[0]}" data-anchor="${s[0]}">${s[2]}</a>`).join('')}</div>${sections.map(s=>`<section class="card" id="${s[0]}"><div class="eyebrow" style="margin-bottom:8px">${s[1]} / 08</div><h2>${s[2]}</h2>${s[3]}</section>`).join('')}${referencesCard(l.references)}<div class="nav-bottom"><button class="button button-outline" ${prev?'':'disabled'} data-go="${prev?`#/course/${prev.id}`:''}">← 上一课</button><button class="button button-accent" ${nextLesson?'':'disabled'} data-go="${nextLesson?`#/course/${nextLesson.id}`:''}">下一课 →</button></div><p class="footnote">课程内容可持续更新；实验涉及高压市电和400V母线，请使用合格隔离/差分测量设备，遵循实验室安全规范。</p>`;
     page.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>x.dataset.go&&navigate(x.dataset.go));
     bindSr(l.id);
